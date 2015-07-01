@@ -7,6 +7,7 @@
 
 import mapnik
 import sys, os, re, argparse, math, tempfile
+import lxml.etree as et
 
 try:
 	import cairo
@@ -403,6 +404,13 @@ if __name__ == "__main__":
 			surface = cairo.SVGSurface(outfile, size[0], size[1]) if fmt == 'svg' else cairo.PDFSurface(outfile, size[0], size[1])
 			mapnik.render(m, surface, scale_factor, 0, 0)
 			surface.finish()
+                        if dim_mm and fmt == 'svg':
+				print 'Set SVG dimensions to {}x{} mm'.format(dim_mm[0], dim_mm[1])
+				tree = et.parse(outfile)
+				svg = tree.getroot()
+				svg.attrib['width'] = str(dim_mm[0]) + 'mm'
+				svg.attrib['height'] = str(dim_mm[1]) + 'mm'
+				tree.write(outfile)
 		else:
 			mapnik.render_to_file(m, outfile, fmt)
 	else:
